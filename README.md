@@ -15,7 +15,7 @@ You can read through the file, and reference plots here.
 
 ![image](svgplots/plot_2.svg)
 ### Plot 3
-[interactive version](https://asjir.github.io/cachalotey/htmlplots/plot_3.html)
+[interactive version](https://asjir.github.io/cachalotey/htmlplots/plot_3.html) here it is most helpful to zoom it
 
 ![image](svgplots/plot_3.svg)
 ### Plot 4
