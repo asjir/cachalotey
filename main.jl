@@ -104,7 +104,7 @@ histogram(ci_filter .* 750u"m"; bins=100, title="Distribution of intervals in me
 
 # finally a scatterplot of consecutive intervals, plot #8
 covmat = cov([ci_filter[1:end-1];; ci_filter[2:end]])
-Plots.scatter(ci_filter[1:end-1]u"s", ci_filter[2:end]u"s", aspect_ratio=:equal, xlim=(0, 0.14), ylim=(0, 0.14), title="consecutive intervals\nR2 score of $(covmat[2]^2 / covmat[1] / covmat[4])")
+scatter(ci_filter[1:end-1]u"s", ci_filter[2:end]u"s", aspect_ratio=:equal, xlim=(0, 0.14), ylim=(0, 0.14), title="consecutive intervals\nR2 score of $(covmat[2]^2 / covmat[1] / covmat[4])")
 using StatsPlots
 covellipse!([mean(ci_filter), mean(ci_filter)], covmat)
 
