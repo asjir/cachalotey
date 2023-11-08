@@ -6,6 +6,8 @@ wavplay(audio, fs)
 
 # plot #1
 plot(eachindex(audio[:, 1]) ./ fs, audio[:, 1], title="Audio wave plot")
+savefig("htmlplots/plot_1.html")
+
 
 # here I pick values that are arbitrary - 15-20 simply gives enough points for calculated standard deviations to be stable
 window = 15
@@ -24,10 +26,14 @@ plotsec(a; window, kwargs...) = plot(eachindex(a)u"s" ./ fs * window, a; kwargs.
 
 # looking at this plot can give idea for threshold, see plot #2
 plotsec(adjstds(audio[:, 1]; window, overlap); window, title="Window standard deviation")
+savefig("htmlplots/plot_2.html")
+
 threshold = 0.03
 
 # and this for minimal interval between the clicks, see plot #3
 plotsec(adjstds(audio[:, 1]; window, overlap) .> threshold; window, title="Threshold met binary signal")
+savefig("htmlplots/plot_3.html")
+
 minimalinterval = 0.01
 
 function findclicktimes(audio; window, overlap, threshold, minimalinterval)
@@ -60,9 +66,11 @@ hpass = digitalfilter(Highpass(4000; fs), Butterworth(4))
 filtered = filt(hpass, audio[:, 1])
 # plot #4
 plot(eachindex(filtered) ./ fs, filtered, title="Audio wave plot after highpass filter")
+savefig("htmlplots/plot_4.html")
 
 # see plot #5.
 plotsec(adjstds(filtered; window, overlap); window, title="Window standard deviation with highpass filter")
+savefig("htmlplots/plot_5.html")
 # after filtering it's expected we need a new threshold
 threshold = 0.008
 
@@ -74,11 +82,13 @@ ct_filter = findclicktimes(filtered; window, overlap, threshold, minimalinterval
 let idxs = 0.01 * 10 .^ (-1:0.1:1), nclicksfound(threshold) = length(findclicktimes(audio[:, 1]; window, overlap, threshold, minimalinterval))
     plot(idxs, nclicksfound.(idxs); xscale=:log10, xlabel="threshold", ylabel="#clicks detected", title="without highpass filter")
 end
+savefig("htmlplots/plot_6.html")
 
 # plot #7
 let idxs = 0.01 * 10 .^ (-1:0.1:1), nclicksfound(threshold) = length(findclicktimes(filtered; window, overlap, threshold, minimalinterval))
     plot(idxs, nclicksfound.(idxs); xscale=:log10, xlabel="threshold", ylabel="#clicks detected", title="with highpass filter")
 end
+savefig("htmlplots/plot_7.html")
 
 # this can be used to quickly inspect when additional click gets detected, whether it was correct
 first_differing = findfirst(map((x, y) -> !isapprox(x, y; atol=minimalinterval), findclicktimes(filtered; window, overlap, threshold=1e-2, minimalinterval), findclicktimes(filtered; window, overlap, threshold=5e-3, minimalinterval)))
@@ -101,10 +111,12 @@ clickintervals(clicktimes) = clicktimes[2:end] .- clicktimes[1:end-1]
 # quick histogram of inter-click intervals where x axis is what distance would produce echo of this interval in water, plot #8
 ci_filter = clickintervals(ct_filter)
 histogram(ci_filter .* 750u"m"; bins=100, title="Distribution of intervals in meters of echo in water")
+savefig("htmlplots/plot_8.html")
 
-# finally a scatterplot of consecutive intervals, plot #8
+
+# finally a scatterplot of consecutive intervals, plot #9
 covmat = cov([ci_filter[1:end-1];; ci_filter[2:end]])
-scatter(ci_filter[1:end-1]u"s", ci_filter[2:end]u"s", aspect_ratio=:equal, xlim=(0, 0.14), ylim=(0, 0.14), title="consecutive intervals\nR2 score of $(covmat[2]^2 / covmat[1] / covmat[4])")
+p = scatter(ci_filter[1:end-1]u"s", ci_filter[2:end]u"s", aspect_ratio=:equal, xlim=(0, 0.14), ylim=(0, 0.14), title="consecutive intervals\nR2 score of $(covmat[2]^2 / covmat[1] / covmat[4])")
 using StatsPlots
 covellipse!([mean(ci_filter), mean(ci_filter)], covmat)
-
+savefig("htmlplots/plot_9.html")
